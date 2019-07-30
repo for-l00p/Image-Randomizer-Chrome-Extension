@@ -16,6 +16,7 @@ $.ajax({
   success: function(result){
     // for each image, generate a random replacement
     for (i = 0; i < images.length; i++){
+      if (i > 50) {break};
       image = images[i]
 
       // find new image with same dimensions
