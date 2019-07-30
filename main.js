@@ -1,66 +1,47 @@
-// retrieve all images on the page
-var images = $("img")
-var n = images.length
+/*
+Code loosely based on the 'Intro to Chrome Extension Project' tutorial from csx
+https://csx.codesmith.io/public/chrome-extension/chrome-extension-1
 
-// retrieve paths to random images to replace each image
-// images come from unsplash.com
+This Chrome extension replaces all images on a webpage with random ones from the picsum api
+*/
+
+// retrieve all images from the DOM
+// equivalently : 'var images = document.getElementsByTagName('img');''
+var images = $("img")
+
+// use ajax to generate asynchronous api requests for placeholder images
 $.ajax({
   method: 'GET',
   url: 'https://picsum.photos/list',
   success: function(result){
-    var paths = []
-    for (i=0; i<n; i++){
-      var index = getRandomArbitrary(0,result.length)
-      var path = 'https://unsplash.it/1200/800?image=' + index
-      paths.push(path)
+    // for each image, generate a random replacement
+    for (i = 0; i < images.length; i++){
+      image = images[i]
+
+      // find new image with same dimensions
+      var width = image.width
+      var height = image.height
+      var path = 'https://unsplash.it/' + width + '/' + height + '?random=' + i
+
+      // update the image
+      replaceImage(i,path)
     }
-    replaceImage(paths)
   },
   error: function(err){
     console.log(err)
   }
 })
 
-// loop through and replace all images
-function replaceImage(paths){
-  for (i=images.length-1; i>=0; i--){
-    image = images[i];
-    w = image.width
-    h = image.height
-    var parent = image.parentNode;
-    parent.removeChild(image);
-    var new_image = document.createElement("IMG");
-    new_image.src = paths[i];
-    new_image.width = w;
-    new_image.height = h;
-    parent.prepend(new_image);
-  }
+// callback function, once an image link is obtained,
+function replaceImage(index, path){
+  image = images[index];
+
+  // retrieve parent element and remove original image
+  var parent = image.parentNode;
+  parent.removeChild(image);
+
+  // create new image element and add to parent
+  var new_image = document.createElement("IMG");
+  new_image.src = path;
+  parent.prepend(new_image);
 }
-
-// Returns a random number between min (inclusive) and max (exclusive)
-function getRandomArbitrary(min, max) {
-  return Math.floor(Math.random() * (max - min) + min);
-}
-
-
-
-
-// Plain JS get all images
-// var images = document.getElementsByTagName('img');
-
-// Jquery get all images
-// var images = $("img")
-// for (i=images.length-1; i>=0; i--){
-//   image = images[i];
-//   var parent = image.parentNode;
-//   parent.removeChild(image);
-//   var new_image = document.createElement("IMG");
-//   new_image.src = image_source
-//   parent.prepend(new_image);
-// }
-
-
-// example callback function with jquery
-// $('div').click(function() {
-//   alert('A div was clicked!');
-// });
